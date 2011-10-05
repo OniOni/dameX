@@ -31,25 +31,25 @@ adv(bl, Res) :- Res = wh.
 libre(X, Y) :- X > -1, X < 10, Y > -1, Y < 10, not(pion(X, Y)).
 	
 % can_eat(fromX, fromY, to_eatX, to_eatY, couleurmangeante)
-can_eat(Xm, Ym, X, Y, wh) :- Xm is X - 1, Xp is X + 1, Ym is Y - 1, Yp is Y + 1, bl(X, Y), libre(Xp, Yp).
-can_eat(Xp, Ym, X, Y, wh) :- Xm is X - 1, Xp is X + 1, Ym is Y - 1, Yp is Y + 1, bl(X, Y), libre(Xm, Yp).
-can_eat(Xm, Yp, X, Y, bl) :- Xm is X - 1, Xp is X + 1, Ym is Y - 1, Yp is Y + 1, wh(X, Y), libre(Xp, Ym).
-can_eat(Xp, Yp, X, Y, bl) :- Xm is X - 1, Xp is X + 1, Ym is Y - 1, Yp is Y + 1, wh(X, Y), libre(Xm, Ym).
+can_eat(Xm, Ym, X, Y, ResX, ResY, wh) :- Xm is X - 1, Xp is X + 1, Ym is Y - 1, Yp is Y + 1, bl(X, Y), libre(Xp, Yp), ResX = Xp , ResY = Yp.
+can_eat(Xp, Ym, X, Y, ResX, ResY, wh) :- Xm is X - 1, Xp is X + 1, Ym is Y - 1, Yp is Y + 1, bl(X, Y), libre(Xm, Yp), ResX = Xm , ResY = Yp.
+can_eat(Xm, Yp, X, Y, ResX, ResY, bl) :- Xm is X - 1, Xp is X + 1, Ym is Y - 1, Yp is Y + 1, wh(X, Y), libre(Xp, Ym), ResX = Xp , ResY = Ym.
+can_eat(Xp, Yp, X, Y, ResX, ResY, bl) :- Xm is X - 1, Xp is X + 1, Ym is Y - 1, Yp is Y + 1, wh(X, Y), libre(Xm, Ym), ResX = Xm , ResY = Ym.
 	
 % Faire un pas dans une case libre (sans jumper)
-can_step_from(X, Y, ResX, ResY, bl) :- Xm is X - 1, Ym is Y - 1, libre(Xm, Ym), ResX is X - 1 , ResY is Y - 1.
-can_step_from(X, Y, ResX, ResY, bl) :- Xp is X + 1, Ym is Y - 1, libre(Xp, Ym), ResX is X + 1 , ResY is Y - 1.
-can_step_from(X, Y, ResX, ResY, wh) :- Xm is X - 1, Yp is Y + 1, libre(Xm, Yp), ResX is X - 1 , ResY is Y + 1.
-can_step_from(X, Y, ResX, ResY, wh) :- Xp is X + 1, Yp is Y + 1, libre(Xp, Yp), ResX is X + 1 , ResY is Y + 1.
+can_step_from(X, Y, ResX, ResY, bl) :- Xm is X - 1, Ym is Y - 1, libre(Xm, Ym), ResX = Xm , ResY = Ym.
+can_step_from(X, Y, ResX, ResY, bl) :- Xp is X + 1, Ym is Y - 1, libre(Xp, Ym), ResX = Xp , ResY = Ym.
+can_step_from(X, Y, ResX, ResY, wh) :- Xm is X - 1, Yp is Y + 1, libre(Xm, Yp), ResX = Xm , ResY = Yp.
+can_step_from(X, Y, ResX, ResY, wh) :- Xp is X + 1, Yp is Y + 1, libre(Xp, Yp), ResX = Xp , ResY = Yp.
 
 % Syntaxic sugar
-can_jump_from(X, Y, bl) :- Xm is X - 1, Ym is Y - 1, can_eat(X, Y, Xm, Ym, bl).
-can_jump_from(X, Y, bl) :- Xp is X + 1, Ym is Y - 1, can_eat(X, Y, Xp, Ym, bl).
-can_jump_from(X, Y, wh) :- Xm is X - 1, Yp is Y + 1, can_eat(X, Y, Xm, Yp, wh).
-can_jump_from(X, Y, wh) :- Xp is X + 1, Yp is Y + 1, can_eat(X, Y, Xp, Yp, wh).
+can_jump_from(X, Y, ResX, ResY, bl) :- Xm is X - 1, Ym is Y - 1, can_eat(X, Y, Xm, Ym, ResX, ResY, bl).
+can_jump_from(X, Y, ResX, ResY, bl) :- Xp is X + 1, Ym is Y - 1, can_eat(X, Y, Xp, Ym, ResX, ResY, bl).
+can_jump_from(X, Y, ResX, ResY, wh) :- Xm is X - 1, Yp is Y + 1, can_eat(X, Y, Xm, Yp, ResX, ResY, wh).
+can_jump_from(X, Y, ResX, ResY, wh) :- Xp is X + 1, Yp is Y + 1, can_eat(X, Y, Xp, Yp, ResX, ResY, wh).
 
 % Pouvons-nous bouger si on se place à un endroit ? (Attention : on doit déjà y être)
-%can_move_from(X, Y, C) :- can_jump_from(X, Y, C).
+can_move_from(X, Y, ResX, ResY, C) :- can_jump_from(X, Y, ResX, ResY, C).
 can_move_from(X, Y, ResX, ResY, C) :- can_step_from(X, Y, ResX, ResY, C).
 
 one_move(X, Y, ResX, ResY, C) :- iscolor(C, X, Y), can_move_from(X, Y, ResX, ResY, C).
