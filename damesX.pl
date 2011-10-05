@@ -37,10 +37,10 @@ can_eat(Xm, Yp, X, Y, bl) :- Xm is X - 1, Xp is X + 1, Ym is Y - 1, Yp is Y + 1,
 can_eat(Xp, Yp, X, Y, bl) :- Xm is X - 1, Xp is X + 1, Ym is Y - 1, Yp is Y + 1, wh(X, Y), libre(Xm, Ym).
 	
 % Faire un pas dans une case libre (sans jumper)
-can_step_from(X, Y, bl) :- Xm is X - 1, Ym is Y - 1, libre(Xm, Ym), .
-can_step_from(X, Y, bl) :- Xp is X + 1, Ym is Y - 1, libre(Xp, Ym).
-can_step_from(X, Y, wh) :- Xm is X - 1, Yp is Y + 1, libre(Xm, Yp).
-can_step_from(X, Y, wh) :- Xp is X + 1, Yp is Y + 1, libre(Xp, Yp).
+can_step_from(X, Y, ResX, ResY, bl) :- Xm is X - 1, Ym is Y - 1, libre(Xm, Ym), ResX is X - 1 , ResY is Y - 1.
+can_step_from(X, Y, ResX, ResY, bl) :- Xp is X + 1, Ym is Y - 1, libre(Xp, Ym), ResX is X + 1 , ResY is Y - 1.
+can_step_from(X, Y, ResX, ResY, wh) :- Xm is X - 1, Yp is Y + 1, libre(Xm, Yp), ResX is X - 1 , ResY is Y + 1.
+can_step_from(X, Y, ResX, ResY, wh) :- Xp is X + 1, Yp is Y + 1, libre(Xp, Yp), ResX is X + 1 , ResY is Y + 1.
 
 % Syntaxic sugar
 can_jump_from(X, Y, bl) :- Xm is X - 1, Ym is Y - 1, can_eat(X, Y, Xm, Ym, bl).
@@ -49,17 +49,17 @@ can_jump_from(X, Y, wh) :- Xm is X - 1, Yp is Y + 1, can_eat(X, Y, Xm, Yp, wh).
 can_jump_from(X, Y, wh) :- Xp is X + 1, Yp is Y + 1, can_eat(X, Y, Xp, Yp, wh).
 
 % Pouvons-nous bouger si on se place à un endroit ? (Attention : on doit déjà y être)
-can_move_from(X, Y, C) :- can_jump_from(X, Y, C).
-can_move_from(X, Y, C) :- can_step_from(X, Y, C).
+%can_move_from(X, Y, C) :- can_jump_from(X, Y, C).
+can_move_from(X, Y, ResX, ResY, C) :- can_step_from(X, Y, ResX, ResY, C).
 
-one_move(X, Y, C) :- iscolor(C, X, Y), can_move_from(X, Y, C).
+one_move(X, Y, ResX, ResY, C) :- iscolor(C, X, Y), can_move_from(X, Y, ResX, ResY, C).
 
 evaluate_situation(C, Value) :- findall((X, Y), iscolor(C, X, Y), Pieces), length(Pieces, Mine),
 			    adv(C, AdvC), findall((X, Y), iscolor(AdvC, X, Y), PiecesA), length(PiecesA, Theirs),
 				Value is Mine - Theirs.
 
 % list des pions pouvant effectué une action
-next_moves(C) :- findall((X,Y), one_move(X, Y, C), Result), write(Result).
+next_moves(C) :- findall(([X,Y],[X2, Y2]), one_move(X, Y, X2, Y2, C), Result), write(Result).
 
 % Deplace un pion de from vers to
 move_no_check(C, FromX, FromY, ToX, ToY) :-
