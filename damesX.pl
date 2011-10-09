@@ -59,7 +59,7 @@ evaluate_situation(C, Value) :- findall((X, Y), iscolor(C, X, Y), Pieces), lengt
 				Value is Mine - Theirs.
 
 % list des pions pouvant effectué une action
-next_moves(C) :- findall(([X,Y],[X2, Y2]), one_move(X, Y, X2, Y2, C), Result), write(Result).
+next_moves(C) :- findall((X, Y, X2, Y2), one_move(X, Y, X2, Y2, C), Result), write(Result).
 
 % Deplace un pion de from vers to
 move_no_check(C, FromX, FromY, ToX, ToY) :-
@@ -73,28 +73,29 @@ move(FromX, FromY, ToX, ToY) :-
 	get_color(FromX, FromY, C),
 	move_no_check(C, FromX, FromY, ToX, ToY).
 
+
 draw :-
-	writef('|'),
 	draw_all(0, 0).
 
 draw_one(X, Y) :-
 	bl(X, Y),
-	writef('x|').
+	writef('|x').
 
 draw_one(X, Y) :-
 	wh(X, Y),
-	writef('o|').
+	writef('|o').
 
 draw_one(_, _) :-
-	writef('.|').
+	writef('|.').
 
 
 draw_all(9, 9) :-
-	draw_one(9, 9).
+	draw_one(9, 9),
+	writef('|\n').
 
 draw_all(9, Y) :-
 	draw_one(9, Y),
-	writef('\n|'),
+	writef('|\n'),
 	X2 is 0,
 	Y2 is Y + 1,
 	draw_all(X2, Y2).
@@ -104,3 +105,6 @@ draw_all(X, Y) :-
 	X2 is X + 1,
 	draw_all(X2, Y).
 	
+
+
+		
