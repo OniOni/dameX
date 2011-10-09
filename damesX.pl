@@ -59,7 +59,7 @@ evaluate_situation(C, Value) :- findall((X, Y), iscolor(C, X, Y), Pieces), lengt
 				Value is Mine - Theirs.
 
 % list des pions pouvant effectué une action
-next_moves(C) :- findall((X, Y, X2, Y2), one_move(X, Y, X2, Y2, C), Result), write(Result).
+next_moves(C, Result) :- findall((X, Y, X2, Y2), one_move(X, Y, X2, Y2, C), Result).
 
 % Deplace un pion de from vers to
 move_no_check(C, FromX, FromY, ToX, ToY) :-
@@ -73,7 +73,16 @@ move(FromX, FromY, ToX, ToY) :-
 	get_color(FromX, FromY, C),
 	move_no_check(C, FromX, FromY, ToX, ToY).
 
+first_moves(_, 0) :- draw.
 
+first_moves(C, I):-
+	next_moves(C, Res), 
+	[H | _] = Res, (FromX, FromY, ToX, ToY) = H, % Extract first move
+	move(FromX, FromY, ToX, ToY),
+	adv(C, A),
+	I2 is I - 1,
+	first_moves(A, I2).
+	
 draw :-
 	draw_all(0, 0).
 
