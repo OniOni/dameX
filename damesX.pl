@@ -181,6 +181,8 @@ game_loop(bl) :-
 	game_loop(wh).
 	
 game_loop(wh) :-
+	evaluate_situation(wh, V),
+	write('Score : '), write(V),
 	write('\nVotre pion :\n'),
 	read(NextFrom),
 	(Xnf, Ynf) = NextFrom,
