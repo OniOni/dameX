@@ -173,6 +173,30 @@ draw_all(X, Y) :-
 	draw_one(X, Y),
 	X2 is X + 1,
 	draw_all(X2, Y).
+
+%clear all facts
+clear_board :-
+	retractall(wh(_,_)),
+	retractall(bl(_,_)).
+
+%Pack all game facts into two lists
+pack(Whites, Blacks) :-
+	findall((X,Y), wh(X, Y), Whites),
+	findall((X1,Y1), bl(X1, Y1), Blacks).
+
+unpack_inner([]) :- true.
+
+unpack_inner([H|T]) :-
+	(X,Y)=H, 
+	F=..[wh, X, Y], 
+	assert(F),
+	unpack_inner(T).
+
+%Unpack lists into game facts
+unpack(Whites, Blacks) :-
+	clear_board,
+	unpack_inner(Whites),
+	unpack_inner(Blacks).
 	
 game_loop(bl) :-
 	write('\nJouons un coup :\n'),
@@ -186,7 +210,7 @@ game_loop(wh) :-
 	write('\nVotre pion :\n'),
 	read(NextFrom),
 	(Xnf, Ynf) = NextFrom,
-	wh(Xnf, Ynf),
+	Wh(Xnf, Ynf),
 	findall((X2, Y2), one_move(Xnf, Ynf, X2, Y2, wh, _, _), PossibleMovesTo),
 	write('\nVous pouvez aller là :\n'),
 	write(PossibleMovesTo),
@@ -203,3 +227,4 @@ game_loop(wh) :-
 start :-
 	draw,
 	game_loop(wh).
+
